@@ -1,4 +1,4 @@
-# 🤖 AI Study Assistant
+#  AI Study Assistant
 
 An AI-powered Study Assistant that lets you upload any **PDF**, ask **questions**, and generate **flashcards** — all using a **local open-source LLM** (no API required!).
 
