@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.log
+.DS_Store
+
+# Virtual environment
+venv/
+.env/
+env/
+
+# Streamlit
+.streamlit/config.toml
+
+# Model files (huge)
+models/*.gguf
+
+# FAISS index
+vectorstore/*.faiss
+vectorstore/*.json
+
+# Uploaded files / cache
+data/*
+chunks/*
+
+# OS files
+Thumbs.db
+
+ask.py
+chat.py
+embed.py
+ingest.py
+demo.py
