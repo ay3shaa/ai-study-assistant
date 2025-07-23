@@ -1,30 +1,35 @@
-from llama_cpp import Llama
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+import torch
 
-# Load Llama model
-llm = Llama(model_path="models/mistral-7b-instruct-v0.2.Q4_K_M.gguf", n_ctx=2048 , n_threads = 10, verbose=False)
+model_id = "mistralai/Mistral-7B-Instruct-v0.1"
 
-# Generate flashcards based on context
-def generate_flashcards(context_chunks,max_tokens,temperature,num_cards=3):
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    device_map="auto", 
+    torch_dtype=torch.float16
+)
+
+generator = pipeline("text-generation", model=model, tokenizer=tokenizer)
+
+def generate_flashcards(context_chunks, max_tokens=800, temperature=0.5, num_cards=3):
     context = "\n\n".join(context_chunks)
-    prompt = f"""[INST] You are a helpful AI study assistant. Generate  exactly {num_cards} flashcards based on the following context to help the student revise.
-    Each flashcard should be in the format:
-    Q: <question>
-    A: <answer>
-    separate each flashcard with "---"
-    output exactly {num_cards} flashcards. No explanations. No extra text.
-    Context: {context}
-    [/INST]"""
+    prompt = f"""[INST] You are a helpful AI study assistant. Generate exactly {num_cards} flashcards based on the following context to help the student revise.
+Each flashcard should be in the format:
+Q: <question>
+A: <answer>
+Separate each flashcard with "---"
+Output exactly {num_cards} flashcards. No explanations. No extra text.
+Context: {context} [/INST]"""
+    
+    response = generator(prompt, max_new_tokens=max_tokens, temperature=temperature)
+    return response[0]['generated_text']
 
-    response = llm(prompt, max_tokens=800, temperature=0.5)
-    return response['choices'][0]['text'].strip()
-
-# Ask the model with context
-def ask_model(question,context,max_tokens,temperature):
-    context = "\n\n".join(context)
+def ask_model(question, context_chunks, max_tokens=500, temperature=0.5):
+    context = "\n\n".join(context_chunks)
     prompt = f"""[INST] You are a helpful AI study assistant. Use the following context to answer the user's question clearly.
-    Context: {context}
-    Question: {question}
-    [/INST]"""
+Context: {context}
+Question: {question} [/INST]"""
 
-    response = llm(prompt, max_tokens=500, temperature=0.5)
-    return response['choices'][0]['text'].strip()
+    response = generator(prompt, max_new_tokens=max_tokens, temperature=temperature)
+    return response[0]['generated_text']
