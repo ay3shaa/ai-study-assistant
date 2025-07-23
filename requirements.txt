@@ -3,4 +3,5 @@ PyMuPDF
 faiss-cpu
 spacy
 sentence-transformers
-llama-cpp-python
+transformers
+torch
